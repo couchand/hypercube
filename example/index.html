@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>hypercube example</title>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="https://raw.github.com/square/crossfilter/master/crossfilter.min.js"></script>
+        <script src="hypercube.js"></script>
+        <style>
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+        </style>
+        <script>
+
+var hyper, time, client, lines, methods, complexity, plot;
+
+d3.json('data.json', function(err, data) {
+    var records = [];
+
+    data.rows.forEach(function(d) {
+        records.push(d.value);
+    });
+
+    hyper = hypercube(records);
+
+    time = hyper.dimension(function(d) { return d.timestamp; }, 'time');
+    client = hyper.dimension(function(d) { return d.client; }, 'category20');
+    lines = hyper.dimension(function(d) { return d.lines; }, 'log' );
+    methods = hyper.dimension(function(d) { return d.methods; }, 'linear');
+    complexity = hyper.dimension(function(d) { return d.complexity; }, 'linear');
+
+    complexity._dim.filter(function(d) { return d !== undefined; });
+    methods._dim.filter(function(d) { return d !== undefined; });
+
+    plot = hyper.graph('#viz', 800, 600);
+
+    plot.x(lines);
+    plot.y(complexity);
+    plot.r(methods);
+    plot.fill(client);
+    plot.draw(lines._dim.top(Infinity));
+
+});
+
+        </script>
+    </head>
+    <body>
+        <div id="viz"></div>
+    </body>
+</html>
