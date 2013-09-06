@@ -25,21 +25,21 @@ d3.json('data.json', function(err, data) {
 
     hyper = hypercube(records);
 
-    time = hyper.dimension(function(d) { return d.timestamp; }, 'time');
-    client = hyper.dimension(function(d) { return d.client; }, 'category20');
-    lines = hyper.dimension(function(d) { return d.lines; }, 'log' );
-    methods = hyper.dimension(function(d) { return d.methods; }, 'linear');
-    complexity = hyper.dimension(function(d) { return d.complexity; }, 'linear');
+    time = hyper.dimension(function(d) { return d.timestamp; });
+    client = hyper.dimension(function(d) { return d.client; });
+    lines = hyper.dimension(function(d) { return d.lines; });
+    methods = hyper.dimension(function(d) { return d.methods; });
+    complexity = hyper.dimension(function(d) { return d.complexity; });
 
     complexity._dim.filter(function(d) { return d !== undefined; });
     methods._dim.filter(function(d) { return d !== undefined; });
 
     plot = hyper.projection('#viz', 800, 600);
 
-    plot.x(lines);
-    plot.y(complexity);
-    plot.r(methods);
-    plot.fill(client);
+    plot.x(lines, 'log');
+    plot.y(complexity, 'linear');
+    plot.r(methods, 'linear');
+    plot.fill(client, 'category20');
     plot.draw(lines._dim.top(Infinity));
 
 });

@@ -1,17 +1,22 @@
 # hypercube data browser
 
 # create a new dimension
-dimension = (xf, accessor, type) ->
+dimension = (xf, accessor) ->
     dim =
         _get: accessor
         _dim: xf.dimension accessor
-        _scale: scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
-        _map: (d) -> scale accessor d
-        _axis: d3.svg.axis().scale(scale)
-
-    dim._scale.domain [dim._get(dim._dim.bottom(1)[0]), dim._get(dim._dim.top(1)[0])]
 
     dim
+
+axis = (dim, type) ->
+    ax =
+        _scale: scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
+        _map: (d) -> scale dim._get d
+        _axis: d3.svg.axis().scale(scale)
+
+    ax._scale.domain [dim._get(dim._dim.bottom(1)[0]), dim._get(dim._dim.top(1)[0])]
+
+    ax
 
 projection = (selector, w, h, m) ->
     m ?= 50
@@ -22,28 +27,32 @@ projection = (selector, w, h, m) ->
             .append('g')
             .attr('transform', "translate(#{m},#{m})")
 
-    proj.x = (dim) ->
-        dim._scale.range([0, w])
-        proj._x = dim
+    proj.x = (dim, type) ->
+        ax = axis dim, type
+        ax._scale.range([0, w])
+        proj._x = ax
         proj._svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', "translate(0,#{h})")
-            .call(dim._axis)
+            .call(ax._axis)
 
-    proj.y = (dim) ->
-        dim._scale.range([h, 0])
-        dim._axis.orient('left')
-        proj._y = dim
+    proj.y = (dim, type) ->
+        ax = axis dim, type
+        ax._scale.range([h, 0])
+        ax._axis.orient('left')
+        proj._y = ax
         proj._svg.append('g')
             .attr('class', 'y axis')
-            .call(dim._axis)
+            .call(ax._axis)
 
-    proj.r = (dim) ->
-        dim._scale.range([2, 6])
-        proj._r = dim
+    proj.r = (dim, type) ->
+        ax = axis dim, type
+        ax._scale.range([2, 6])
+        proj._r = ax
 
-    proj.fill = (dim) ->
-        proj._fill = dim
+    proj.fill = (dim, type) ->
+        ax = axis dim, type
+        proj._fill = ax
 
     proj.draw = (records) ->
         proj._svg.selectAll('.record')
@@ -62,12 +71,16 @@ hypercube = (records) ->
     cube =
         _xf: crossfilter records
         _dims: []
+        _projs: []
 
-    cube.dimension = (accessor, type) ->
-        d = dimension cube._xf, accessor, type
+    cube.dimension = (accessor) ->
+        d = dimension cube._xf, accessor
         cube._dims.push d
         d
 
-    cube.projection = projection
+    cube.projection = (selector, width, height, margin) ->
+        p = projection selector, width, height, margin
+        cube._projs.push p
+        p
 
     cube
