@@ -13,49 +13,49 @@ dimension = (xf, accessor, type) ->
 
     dim
 
-graph = (selector, w, h, m) ->
+projection = (selector, w, h, m) ->
     m ?= 50
-    gr =
+    proj =
         _svg: d3.select(selector).append('svg')
             .attr('width', w + 2*m)
             .attr('height', h + 2*m)
             .append('g')
             .attr('transform', "translate(#{m},#{m})")
 
-    gr.x = (dim) ->
+    proj.x = (dim) ->
         dim._scale.range([0, w])
-        gr._x = dim
-        gr._svg.append('g')
+        proj._x = dim
+        proj._svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', "translate(0,#{h})")
             .call(dim._axis)
 
-    gr.y = (dim) ->
+    proj.y = (dim) ->
         dim._scale.range([h, 0])
         dim._axis.orient('left')
-        gr._y = dim
-        gr._svg.append('g')
+        proj._y = dim
+        proj._svg.append('g')
             .attr('class', 'y axis')
             .call(dim._axis)
 
-    gr.r = (dim) ->
+    proj.r = (dim) ->
         dim._scale.range([2, 6])
-        gr._r = dim
+        proj._r = dim
 
-    gr.fill = (dim) ->
-        gr._fill = dim
+    proj.fill = (dim) ->
+        proj._fill = dim
 
-    gr.draw = (records) ->
-        gr._svg.selectAll('.record')
+    proj.draw = (records) ->
+        proj._svg.selectAll('.record')
             .data(records)
             .enter().append('circle')
             .attr('class', 'record')
-            .attr('r', gr._r._map)
-            .attr('cx', gr._x._map)
-            .attr('cy', gr._y._map)
-            .attr('fill', gr._fill._map)
+            .attr('r', proj._r._map)
+            .attr('cx', proj._x._map)
+            .attr('cy', proj._y._map)
+            .attr('fill', proj._fill._map)
 
-    gr
+    proj
 
 # create a new hypercube
 hypercube = (records) ->
@@ -68,6 +68,6 @@ hypercube = (records) ->
         cube._dims.push d
         d
 
-    cube.graph = graph
+    cube.projection = projection
 
     cube

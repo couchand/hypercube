@@ -34,7 +34,7 @@ d3.json('data.json', function(err, data) {
     complexity._dim.filter(function(d) { return d !== undefined; });
     methods._dim.filter(function(d) { return d !== undefined; });
 
-    plot = hyper.graph('#viz', 800, 600);
+    plot = hyper.projection('#viz', 800, 600);
 
     plot.x(lines);
     plot.y(complexity);
