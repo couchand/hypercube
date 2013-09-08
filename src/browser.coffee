@@ -42,8 +42,9 @@ browser = () ->
 
             cube._xf.add(records)
 
-    dimension = (field) ->
-        d = cube.dimension accessor field
+    dimension = (field, fn) ->
+        fn = if typeof fn is 'function' then fn else accessor field
+        d = cube.dimension fn
         li = dimensionList.append('li')
             .datum(d)
             .call(draggable)
