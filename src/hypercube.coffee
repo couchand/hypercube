@@ -65,8 +65,8 @@ projection = (selector, w, h, m) ->
         proj._fill = ax
 
     proj.draw = (records) ->
-        proj._svg.select('.x.axis').call(proj._x._axis)
-        proj._svg.select('.y.axis').call(proj._y._axis)
+        proj._svg.select('.x.axis').call(proj._x._axis) if proj._x?
+        proj._svg.select('.y.axis').call(proj._y._axis) if proj._y?
 
         circle = proj._svg.selectAll('.record')
             .data(records)
