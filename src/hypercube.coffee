@@ -1,6 +1,7 @@
 # hypercube data browser
 
 logFormat = d3.format ",.0f"
+brushSize = 30
 
 # create a new dimension
 dimension = (xf, accessor) ->
@@ -17,6 +18,7 @@ axis = (dim, type) ->
         _scale: scale
         _map: (d) -> offset scale dim._get d
         _axis: d3.svg.axis().scale(scale)
+        _brush: d3.svg.brush()
 
     ax._axis.tickFormat(logFormat) if type is 'log'
 
@@ -37,6 +39,7 @@ defaultAxis = (dim) ->
         _scale: scale
         _map: (d) -> scale vals[dim._get d][0].value
         _axis: d3.svg.axis().scale(scale)
+        _brush: ->
 
     ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
 
@@ -55,7 +58,12 @@ projection = (selector, w, h, m) ->
         .attr('class', 'x axis')
         .attr('transform', "translate(0,#{h})")
     proj._svg.append('g')
+        .attr('class', 'x brush')
+        .attr('transform', "translate(0,#{h})")
+    proj._svg.append('g')
         .attr('class', 'y axis')
+    proj._svg.append('g')
+        .attr('class', 'y brush')
 
     proj.x = (dim, type) ->
         ax = axis dim, type
@@ -63,6 +71,8 @@ projection = (selector, w, h, m) ->
             ax._scale.rangeRoundBands [0, w], 0.1
         else
             ax._scale.range([0, w])
+        ax._brush
+            .x(ax._scale)
         proj._x = ax
 
         if not proj._y?
@@ -75,6 +85,8 @@ projection = (selector, w, h, m) ->
         ax = axis dim, type
         ax._scale.range([h, 0])
         ax._axis.orient('left')
+        ax._brush
+            .y(ax._scale)
         proj._y = ax
 
         if not proj._x?
@@ -92,8 +104,21 @@ projection = (selector, w, h, m) ->
         proj._fill = ax
 
     proj.draw = (records) ->
-        proj._svg.select('.x.axis').call(proj._x._axis) if proj._x?
-        proj._svg.select('.y.axis').call(proj._y._axis) if proj._y?
+        if proj._x?
+            proj._svg.select('.x.axis')
+                .call(proj._x._axis)
+            proj._svg.select('.x.brush')
+                .call(proj._x._brush)
+                .selectAll('rect')
+                .attr('height', brushSize)
+        if proj._y?
+            proj._svg.select('.y.axis')
+                .call(proj._y._axis)
+            proj._svg.select('.y.brush')
+                .call(proj._y._brush)
+                .selectAll('rect')
+                .attr('x', -brushSize)
+                .attr('width', brushSize)
 
         circle = proj._svg.selectAll('.record')
             .data(records)
