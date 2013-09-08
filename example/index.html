@@ -11,42 +11,72 @@
   stroke: #000;
   shape-rendering: crispEdges;
 }
+
+div {
+    float: left;
+}
+
         </style>
         <script>
 
-var hyper, time, client, lines, methods, complexity, plot;
+var hyper, time, client, lines, methods, complexity;
+var plot1, plot2, plot3;
+
+var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S.%LZ');
 
 d3.json('data.json', function(err, data) {
     var records = [];
 
-    data.rows.forEach(function(d) {
-        records.push(d.value);
+    data.forEach(function(d) {
+        d = d.value;
+        d.timestamp = timeFormat.parse( d.timestamp );
+        d.complexityPerMethod = d.complexity / (d.methods ? d.methods : 1);
+        records.push(d);
     });
 
     hyper = hypercube(records);
 
-    time = hyper.dimension(function(d) { return d.timestamp; });
+    timestamp = hyper.dimension(function(d) { return d.timestamp; });
     client = hyper.dimension(function(d) { return d.client; });
     lines = hyper.dimension(function(d) { return d.lines; });
     methods = hyper.dimension(function(d) { return d.methods; });
     complexity = hyper.dimension(function(d) { return d.complexity; });
+    complexityPerMethod = hyper.dimension(function(d) { return d.complexityPerMethod; });
 
     complexity._dim.filter(function(d) { return d !== undefined; });
     methods._dim.filter(function(d) { return d !== undefined; });
 
-    plot = hyper.projection('#viz', 800, 600);
+    plot1 = hyper.projection('#viz1', 360, 600);
 
-    plot.x(lines, 'log');
-    plot.y(complexity, 'linear');
-    plot.r(methods, 'linear');
-    plot.fill(client, 'category20');
-    plot.draw(lines._dim.top(Infinity));
+    plot1.x(complexity, 'log');
+    plot1.y(complexityPerMethod, 'log');
+    plot1.r(lines, 'sqrt');
+    plot1.fill(client, 'category20');
+    plot1.draw(lines._dim.top(Infinity));
+
+    plot2 = hyper.projection('#viz2', 360, 600);
+
+    plot2.x(client, 'ordinal');
+    plot2.y(complexityPerMethod, 'log');
+    plot2.r(complexity, 'sqrt');
+    plot2.fill(client, 'category20');
+    plot2.draw(lines._dim.top(Infinity));
+
+    plot3 = hyper.projection('#viz3', 360, 600);
+
+    plot3.x(lines, 'log');
+    plot3.y(complexityPerMethod, 'log');
+    plot3.r(methods, 'sqrt');
+    plot3.fill(client, 'category20');
+    plot3.draw(lines._dim.top(Infinity));
 
 });
 
         </script>
     </head>
     <body>
-        <div id="viz"></div>
+        <div id="viz1"></div>
+        <div id="viz2"></div>
+        <div id="viz3"></div>
     </body>
 </html>
