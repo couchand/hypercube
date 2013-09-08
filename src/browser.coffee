@@ -20,10 +20,17 @@ browser = () ->
                 .text (d) -> d
             cube._xf.add(records)
 
+    dimension = (field) ->
+        li = dimensions.select('ul').append('li')
+        li.append('span')
+            .text(field)
+        cube.dimension accessor field
+
     {
         search: search
         cube: cube
         plot: plot
+        dimension: dimension
     }
 
 return browser
