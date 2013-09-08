@@ -1,5 +1,10 @@
 # data browser
 
+draggable = (selection) ->
+    selection.forEach (el) ->
+        $(el).draggable
+            revert: yes
+
 browser = () ->
     cube = hypercube([])
 
@@ -7,6 +12,10 @@ browser = () ->
     dimensionList = d3.select('#dimensions').select('ul')
     groupList = d3.select('#groups').select('ul')
     plot = cube.projection('#viz', 600, 600)
+
+    $('#dimensions').droppable
+        drop: (e, ui) ->
+            dimension $(ui.draggable).text()
 
     search = (url, clean) ->
         warehouse.fetch url, clean, (records) ->
@@ -17,7 +26,9 @@ browser = () ->
                 .selectAll('li')
                 .data(warehouse.fields(records))
                 .enter().append('li')
+                .call(draggable)
                 .text (d) -> d
+
             cube._xf.add(records)
 
     dimension = (field) ->
