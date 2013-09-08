@@ -1,5 +1,7 @@
 # hypercube data browser
 
+logFormat = d3.format ",.0f"
+
 # create a new dimension
 dimension = (xf, accessor) ->
     dim =
@@ -15,6 +17,8 @@ axis = (dim, type) ->
         _scale: scale
         _map: (d) -> offset scale dim._get d
         _axis: d3.svg.axis().scale(scale)
+
+    ax._axis.tickFormat(logFormat) if type is 'log'
 
     if type is 'ordinal'
         ax._scale.domain dim._dim.group().all().map (d) -> d.key
@@ -80,7 +84,7 @@ projection = (selector, w, h, m) ->
 
     proj.r = (dim, type) ->
         ax = axis dim, type
-        ax._scale.range([2, 6])
+        ax._scale.range([2, 8])
         proj._r = ax
 
     proj.fill = (dim, type) ->
@@ -102,7 +106,7 @@ projection = (selector, w, h, m) ->
             .attr('r', if proj._r? then proj._r._map else 3)
             .attr('cx', if proj._x? then proj._x._map else 0)
             .attr('cy', if proj._y? then proj._y._map else 0)
-            .attr('fill', if proj._fill? then proj._fill._map else 'red')
+            .attr('fill', if proj._fill? then proj._fill._map else 'black')
 
     proj
 
