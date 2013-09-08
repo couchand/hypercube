@@ -2,15 +2,17 @@
 
 warehouse = []
 
-fetch = (url, clean) ->
+fetch = (url, clean, cb) ->
     d3.json url, (err, data) ->
         return console.error err if err
-        clean(data).forEach (d) ->
+        cleaned = clean(data)
+        cleaned.forEach (d) ->
             warehouse.push d
+        cb cleaned
 
-fields = ->
+fields = (_) ->
     all = {}
-    warehouse.forEach (d) ->
+    (if _? then _ else warehouse).forEach (d) ->
         d3.keys(d).forEach (k) ->
             all[k] = yes
     d3.keys all

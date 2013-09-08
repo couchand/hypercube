@@ -68,10 +68,10 @@ projection = (selector, w, h, m) ->
             .data(records)
             .enter().append('circle')
             .attr('class', 'record')
-            .attr('r', proj._r._map)
-            .attr('cx', proj._x._map)
-            .attr('cy', proj._y._map)
-            .attr('fill', proj._fill._map)
+            .attr('r', if proj._r? then proj._r._map else 3)
+            .attr('cx', if proj._x? then proj._x._map else 0)
+            .attr('cy', if proj._y? then proj._y._map else 0)
+            .attr('fill', if proj._fill? then proj._fill._map else 'red')
 
     proj
 

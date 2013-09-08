@@ -6,7 +6,69 @@
         <script src="hypercube.js"></script>
         <script src="accessor.js"></script>
         <script src="warehouse.js"></script>
+        <script src="browser.js"></script>
+        <style>
+
+#sources, #dimensions, #groups, #viz {
+    position: fixed;
+}
+
+.wrapper {
+    padding-left: 20px;
+}
+
+#sources {
+    top: 0;
+    left: 0;
+    width: 16%;
+    height: 100%;
+}
+
+#dimensions {
+    top: 0;
+    right: 0;
+    width: 24%;
+    height: 50%;
+}
+
+#groups {
+    bottom: 0;
+    right: 0;
+    width: 24%;
+    height: 50%;
+}
+
+#viz {
+    top: 0;
+    left: 16%;
+    width: 60%;
+    height: 100%;
+}
+
+        </style>
     </head>
     <body>
+        <div id="sources">
+          <div class="wrapper">
+            <h2>data sources</h2>
+            <ul></ul>
+          </div>
+        </div>
+        <div id="dimensions">
+          <div class="wrapper">
+            <h2>dimensions</h2>
+            <ul></ul>
+          </div>
+        </div>
+        <div id="groups">
+          <div class="wrapper">
+            <h2>groups</h2>
+            <ul></ul>
+          </div>
+        </div>
+        <div id="viz"></div>
+        <script>
+
+        </script>
     </body>
 </html>
