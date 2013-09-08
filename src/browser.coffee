@@ -24,7 +24,7 @@ browser = () ->
             axis = prompt 'axis (x, y, r, fill)'
             type = 'category20' if axis is 'fill'
             type = 'sqrt' if axis is 'r'
-            type = prompt 'type' if not type?
+            type = prompt 'type (linear, log, time, ordinal, etc.)' if not type?
             plot[axis](ui.draggable[0].__data__, type)
             plot.draw cube._dims[0]._dim.top Infinity
 
