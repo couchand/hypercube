@@ -39,7 +39,7 @@ defaultAxis = (dim) ->
     scale = d3.scale.linear()
     ax =
         _scale: scale
-        _map: (d) -> scale vals[dim._get d][0].value
+        _map: (d) -> scale if not vals[dim._get d]? then 0 else vals[dim._get d][0].value
         _axis: d3.svg.axis().scale(scale)
         _brush: ->
 
