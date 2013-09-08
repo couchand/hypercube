@@ -93,3 +93,5 @@ hypercube = (records) ->
         p
 
     cube
+
+return hypercube
