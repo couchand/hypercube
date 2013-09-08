@@ -28,6 +28,11 @@ browser = () ->
             plot[axis](ui.draggable[0].__data__, type)
             plot.draw cube._dims[0]._dim.top Infinity
 
+    $('#groups').droppable
+        accept: '#dimensions li'
+        drop: (e, ui) ->
+            group ui.draggable[0].__data__
+
     search = (url, clean) ->
         warehouse.fetch url, clean, (records) ->
             li = sourceList.append('li')
@@ -45,6 +50,7 @@ browser = () ->
     dimension = (field, fn) ->
         fn = if typeof fn is 'function' then fn else accessor field
         d = cube.dimension fn
+        d._name = field
         li = dimensionList.append('li')
             .datum(d)
             .call(draggable)
@@ -52,11 +58,24 @@ browser = () ->
             .text(field)
         d
 
+    group = (dim) ->
+        g = dim._dim.group()
+        li = groupList.append('li')
+            .datum(g)
+        li.append('span')
+            .text(dim._name)
+        li.append('ul').selectAll('li')
+            .data(g.top(3))
+            .enter().append('li')
+            .text (d) -> d.key
+        g
+
     {
         search: search
         cube: cube
         plot: plot
         dimension: dimension
+        group: group
     }
 
 return browser
