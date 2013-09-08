@@ -35,6 +35,12 @@ projection = (selector, w, h, m) ->
             .append('g')
             .attr('transform', "translate(#{m},#{m})")
 
+    proj._svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', "translate(0,#{h})")
+    proj._svg.append('g')
+        .attr('class', 'y axis')
+
     proj.x = (dim, type) ->
         ax = axis dim, type
         if type is 'ordinal'
@@ -42,19 +48,12 @@ projection = (selector, w, h, m) ->
         else
             ax._scale.range([0, w])
         proj._x = ax
-        proj._svg.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', "translate(0,#{h})")
-            .call(ax._axis)
 
     proj.y = (dim, type) ->
         ax = axis dim, type
         ax._scale.range([h, 0])
         ax._axis.orient('left')
         proj._y = ax
-        proj._svg.append('g')
-            .attr('class', 'y axis')
-            .call(ax._axis)
 
     proj.r = (dim, type) ->
         ax = axis dim, type
@@ -66,10 +65,17 @@ projection = (selector, w, h, m) ->
         proj._fill = ax
 
     proj.draw = (records) ->
-        proj._svg.selectAll('.record')
+        proj._svg.select('.x.axis').call(proj._x._axis)
+        proj._svg.select('.y.axis').call(proj._y._axis)
+
+        circle = proj._svg.selectAll('.record')
             .data(records)
+
+        circle
             .enter().append('circle')
             .attr('class', 'record')
+
+        circle
             .attr('r', if proj._r? then proj._r._map else 3)
             .attr('cx', if proj._x? then proj._x._map else 0)
             .attr('cy', if proj._y? then proj._y._map else 0)
