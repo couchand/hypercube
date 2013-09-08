@@ -9,9 +9,11 @@ dimension = (xf, accessor) ->
     dim
 
 axis = (dim, type) ->
+    scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
+    offset = if type is 'ordinal' then ((d)-> d + scale.rangeBand()*0.5) else ((d) -> d)
     ax =
-        _scale: scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
-        _map: (d) -> scale dim._get d
+        _scale: scale
+        _map: (d) -> offset scale dim._get d
         _axis: d3.svg.axis().scale(scale)
 
     if type is 'ordinal'
