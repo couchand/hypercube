@@ -21,6 +21,8 @@ axis = (dim, type) ->
         _brush: d3.svg.brush()
 
     ax._axis.tickFormat(logFormat) if type is 'log'
+    ax._brush.on 'brush', ->
+        dim._dim.filterRange ax._brush.extent()
 
     if type is 'ordinal'
         ax._scale.domain dim._dim.group().all().map (d) -> d.key
@@ -126,6 +128,9 @@ projection = (selector, w, h, m) ->
         circle
             .enter().append('circle')
             .attr('class', 'record')
+
+        circle
+            .exit().remove()
 
         circle
             .attr('r', if proj._r? then proj._r._map else 3)
