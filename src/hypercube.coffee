@@ -85,7 +85,10 @@ projection = (selector, w, h, m) ->
 
     proj.y = (dim, type) ->
         ax = axis dim, type
-        ax._scale.range([h, 0])
+        if type is 'ordinal'
+            ax._scale.rangeRoundBands [h, 0], 0.1
+        else
+            ax._scale.range([h, 0])
         ax._axis.orient('left')
         ax._brush
             .y(ax._scale)
