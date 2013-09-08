@@ -26,6 +26,18 @@ axis = (dim, type) ->
 
     ax
 
+defaultAxis = (dim) ->
+    vals = d3.nest().key((d) -> d.key).map dim._dim.group().all()
+    scale = d3.scale.linear()
+    ax =
+        _scale: scale
+        _map: (d) -> scale vals[dim._get d][0].value
+        _axis: d3.svg.axis().scale(scale)
+
+    ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
+
+    ax
+
 projection = (selector, w, h, m) ->
     m ?= 50
     proj =
@@ -49,11 +61,22 @@ projection = (selector, w, h, m) ->
             ax._scale.range([0, w])
         proj._x = ax
 
+        if not proj._y?
+            axy = defaultAxis dim
+            axy._scale.range([h, 0])
+            axy._axis.orient('left')
+            proj._y = axy
+
     proj.y = (dim, type) ->
         ax = axis dim, type
         ax._scale.range([h, 0])
         ax._axis.orient('left')
         proj._y = ax
+
+        if not proj._x?
+            axx = defaultAxis dim
+            axx._scale.range([0, w])
+            proj._x = axx
 
     proj.r = (dim, type) ->
         ax = axis dim, type
