@@ -3,14 +3,14 @@
 browser = () ->
     cube = hypercube([])
 
-    sources = d3.select('#sources')
-    dimensions = d3.select('#dimensions')
-    groups = d3.select('#groups')
+    sourceList = d3.select('#sources').select('ul')
+    dimensionList = d3.select('#dimensions').select('ul')
+    groupList = d3.select('#groups').select('ul')
     plot = cube.projection('#viz', 600, 600)
 
     search = (url, clean) ->
         warehouse.fetch url, clean, (records) ->
-            li = sources.select('ul').append('li')
+            li = sourceList.append('li')
             li.append('span')
                 .text(url)
             li.append('ul')
@@ -21,7 +21,7 @@ browser = () ->
             cube._xf.add(records)
 
     dimension = (field) ->
-        li = dimensions.select('ul').append('li')
+        li = dimensionList.append('li')
         li.append('span')
             .text(field)
         cube.dimension accessor field
