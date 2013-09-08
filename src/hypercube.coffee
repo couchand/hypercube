@@ -14,7 +14,13 @@ axis = (dim, type) ->
         _map: (d) -> scale dim._get d
         _axis: d3.svg.axis().scale(scale)
 
-    ax._scale.domain [dim._get(dim._dim.bottom(1)[0]), dim._get(dim._dim.top(1)[0])]
+    if type is 'ordinal'
+        ax._scale.domain dim._dim.group().all().map (d) -> d.key
+    else
+        ax._scale.domain [
+            dim._get(dim._dim.bottom(1)[0]),
+            dim._get(dim._dim.top(1)[0])
+        ]
 
     ax
 
@@ -29,7 +35,10 @@ projection = (selector, w, h, m) ->
 
     proj.x = (dim, type) ->
         ax = axis dim, type
-        ax._scale.range([0, w])
+        if type is 'ordinal'
+            ax._scale.rangeRoundBands [0, w], 0.1
+        else
+            ax._scale.range([0, w])
         proj._x = ax
         proj._svg.append('g')
             .attr('class', 'x axis')
