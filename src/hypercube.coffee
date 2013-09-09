@@ -8,17 +8,33 @@ dimension = (xf, accessor) ->
     dim =
         _get: accessor
         _dim: xf.dimension accessor
+        axis: (type) -> axis @, type
+        group: () -> group @
 
     dim
+
+group = (dim) ->
+    gr =
+        _get: dim._get
+        _dim: dim._dim
+        _group: dim._dim.group()
+        axis: (type) -> axis @, type
+    gr
 
 axis = (dim, type) ->
     scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
     offset = if type is 'ordinal' then ((d)-> d + scale.rangeBand()*0.5) else ((d) -> d)
     ax =
+        _dim: dim
         _scale: scale
         _map: (d) -> offset scale dim._get d
         _axis: d3.svg.axis().scale(scale)
         _brush: d3.svg.brush()
+        range: (extent) ->
+            if type is 'ordinal'
+                ax._scale.rangeRoundBands extent, 0.1
+            else
+                ax._scale.range extent
 
     ax._axis.tickFormat(logFormat) if type is 'log'
     ax._brush.on 'brush', ->
@@ -67,45 +83,35 @@ projection = (selector, w, h, m) ->
     proj._svg.append('g')
         .attr('class', 'y brush')
 
-    proj.x = (dim, type) ->
-        ax = axis dim, type
-        if type is 'ordinal'
-            ax._scale.rangeRoundBands [0, w], 0.1
-        else
-            ax._scale.range([0, w])
+    proj.x = (ax) ->
+        ax.range [0, w]
         ax._brush
             .x(ax._scale)
         proj._x = ax
 
         if not proj._y?
-            axy = defaultAxis dim
+            axy = defaultAxis ax._dim
             axy._scale.range([h, 0])
             axy._axis.orient('left')
             proj._y = axy
 
-    proj.y = (dim, type) ->
-        ax = axis dim, type
-        if type is 'ordinal'
-            ax._scale.rangeRoundBands [h, 0], 0.1
-        else
-            ax._scale.range([h, 0])
+    proj.y = (ax) ->
+        ax.range [h, 0]
         ax._axis.orient('left')
         ax._brush
             .y(ax._scale)
         proj._y = ax
 
         if not proj._x?
-            axx = defaultAxis dim
+            axx = defaultAxis ax._dim
             axx._scale.range([0, w])
             proj._x = axx
 
-    proj.r = (dim, type) ->
-        ax = axis dim, type
+    proj.r = (ax) ->
         ax._scale.range([2, 8])
         proj._r = ax
 
-    proj.fill = (dim, type) ->
-        ax = axis dim, type
+    proj.fill = (ax) ->
         proj._fill = ax
 
     proj.draw = (records) ->

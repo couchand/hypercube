@@ -18,20 +18,23 @@ browser = () ->
         drop: (e, ui) ->
             dimension $(ui.draggable).text()
 
-    $('#viz').droppable
-        accept: '#dimensions li'
-        drop: (e, ui) ->
-            axis = prompt 'axis (x, y, r, fill)'
-            type = 'category20' if axis is 'fill'
-            type = 'sqrt' if axis is 'r'
-            type = prompt 'type (linear, log, time, ordinal, etc.)' if not type?
-            plot[axis](ui.draggable[0].__data__, type)
-            plot.draw cube._dims[0]._dim.top Infinity
-
     $('#groups').droppable
         accept: '#dimensions li'
         drop: (e, ui) ->
             group ui.draggable[0].__data__
+
+    $('#viz').droppable
+        accept: '#dimensions li, #groups li'
+        drop: (e, ui) ->
+            if not ui.draggable.hasClass 'group'
+                axis = prompt 'axis (x, y, r)'
+                type = 'sqrt' if axis is 'r'
+                type = prompt 'type (linear, log, time, etc.)' if not type?
+            else
+                axis = prompt 'axis (x, y, fill)'
+                type = if axis is 'fill' then 'category20' else 'ordinal'
+            plot[axis](ui.draggable[0].__data__.axis type)
+            plot.draw cube._dims[0]._dim.top Infinity
 
     search = (url, clean) ->
         warehouse.fetch url, clean, (records) ->
@@ -52,6 +55,7 @@ browser = () ->
         d = cube.dimension fn
         d._name = field
         li = dimensionList.append('li')
+            .attr('class', 'dimension')
             .datum(d)
             .call(draggable)
         li.append('span')
@@ -59,13 +63,15 @@ browser = () ->
         d
 
     group = (dim) ->
-        g = dim._dim.group()
+        g = dim.group()
         li = groupList.append('li')
+            .attr('class', 'group')
             .datum(g)
+            .call(draggable)
         li.append('span')
             .text(dim._name)
         li.append('ul').selectAll('li')
-            .data(g.top(3))
+            .data(g._group.top(3))
             .enter().append('li')
             .text (d) -> d.key
         g
