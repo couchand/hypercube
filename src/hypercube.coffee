@@ -17,14 +17,18 @@ class Dimension
 dimension = (xf, name, accessor) ->
     new Dimension xf, name, accessor
 
+class Group
+    constructor: (dim) ->
+        @_name =  dim._name
+        @_get =  dim._get
+        @_dim =  dim._dim
+        @_group =  dim._dim.group()
+
+    axis: (type) ->
+        axis @, type
+
 group = (dim) ->
-    gr =
-        _name: dim._name
-        _get: dim._get
-        _dim: dim._dim
-        _group: dim._dim.group()
-        axis: (type) -> axis @, type
-    gr
+    new Group dim
 
 axis = (dim, type) ->
     scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
