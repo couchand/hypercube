@@ -2,8 +2,8 @@
 
 warehouse = []
 
-fetch = (url, clean, cb) ->
-    d3.json url, (err, data) ->
+fetch = (type, url, clean, cb) ->
+    d3[type] url, (err, data) ->
         return console.error err if err
         cleaned = clean(data)
         cleaned.forEach (d) ->

@@ -71,6 +71,12 @@
             <h2>data sources</h2>
             <label for="new_url">source url</label>
             <input type="text" id="new_url" name="new_url" /><br />
+            <label for="new_type">source type</label>
+            <select id="new_type" name="new_type">
+                <option value="json">json</option>
+                <option value="csv">csv</option>
+                <option value="tsv">tsv</option>
+            </select><br />
             <label for="new_list">list accessor</label>
             <input type="text" id="new_list" name="new_list" /><br />
             <label for="new_value">value accessor</label>
@@ -113,6 +119,7 @@ $(function() {
 
     $('#add_source').on('click', function(e) {
         var url = $('#new_url').val(),
+            type = $('#new_type').val(),
             list = $('#new_list').val(),
             value = $('#new_value').val();
 
@@ -122,9 +129,9 @@ $(function() {
             return cleaned;
         };
 
-        var fetch = 'fetch/' + encodeURIComponent(url);
+        url = 'fetch/' + encodeURIComponent(url);
 
-        b.search(fetch, cleaner);
+        b.search(type, url, cleaner);
     });
 
 });
