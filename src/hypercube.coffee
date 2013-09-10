@@ -179,23 +179,24 @@ class Projection
 projection = (selector, w, h) ->
     new Projection selector, w, h
 
-# create a new hypercube
-hypercube = (records) ->
-    cube =
-        _xf: crossfilter records
-        _dims: []
-        _projs: []
+class Hypercube
+    constructor: (records) ->
+        @_xf = crossfilter records
+        @_dims = []
+        @_projs = []
 
-    cube.dimension = (name, accessor) ->
-        d = dimension cube._xf, name, accessor
-        cube._dims.push d
+    dimension: (name, accessor) ->
+        d = dimension @_xf, name, accessor
+        @_dims.push d
         d
 
-    cube.projection = (selector, width, height, margin) ->
+    projection: (selector, width, height, margin) ->
         p = projection selector, width, height, margin
-        cube._projs.push p
+        @_projs.push p
         p
 
-    cube
+# create a new hypercube
+hypercube = (records) ->
+    new Hypercube records
 
 return hypercube
