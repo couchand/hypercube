@@ -69,6 +69,8 @@
         <div id="sources">
           <div class="wrapper">
             <h2>data sources</h2>
+            <label for="new_name">source name</label>
+            <input type="text" id="new_name" name="new_name" /><br />
             <label for="new_url">source url</label>
             <input type="text" id="new_url" name="new_url" /><br />
             <label for="new_type">source type</label>
@@ -119,6 +121,7 @@ $(function() {
 
     $('#add_source').on('click', function(e) {
         var url = $('#new_url').val(),
+            name = $('#new_name').val(),
             type = $('#new_type').val(),
             list = $('#new_list').val(),
             value = $('#new_value').val();
@@ -131,7 +134,7 @@ $(function() {
 
         url = 'fetch/' + encodeURIComponent(url);
 
-        b.search(type, url, cleaner);
+        b.search(type, name, url, cleaner);
     });
 
 });

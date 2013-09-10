@@ -36,14 +36,14 @@ browser = () ->
             plot[axis](ui.draggable[0].__data__.axis type)
             plot.draw cube._dims[0]._dim.top Infinity
 
-    search = (type, url, clean) ->
+    search = (type, name, url, clean) ->
         warehouse.fetch type, url, clean, (records) ->
             records.forEach (record) ->
                 record._source = name
 
             li = sourceList.append('li')
             li.append('span')
-                .text(url)
+                .text(name)
             li.append('ul')
                 .selectAll('li')
                 .data(warehouse.fields(records))
