@@ -33,11 +33,10 @@ group = (dim) ->
 class Axis
     constructor: (dim, type) ->
         me = @
-        scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
         @_name = dim._name
         @_type = type
         @_dim = dim
-        @_scale = scale
+        scale = @_scale ?= d3.scale[type]()
         @_axis = d3.svg.axis().scale(scale)
         @_brush = d3.svg.brush()
         @_map = (d) -> scale dim._get d
@@ -54,6 +53,11 @@ class Axis
     range: (extent) ->
         @_scale.range extent
 
+class TimeAxis extends Axis
+    constructor: (dim) ->
+        @_scale = d3.time.scale()
+        super dim, 'time'
+
 class OrdinalAxis extends Axis
     constructor: (dim) ->
         super dim, 'ordinal'
@@ -67,6 +71,7 @@ class OrdinalAxis extends Axis
 
 axis = (dim, type) ->
     return new OrdinalAxis dim if type is 'ordinal'
+    return new TimeAxis dim if type is 'time'
     new Axis dim, type
 
 defaultAxis = (dim) ->
