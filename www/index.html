@@ -69,6 +69,13 @@
         <div id="sources">
           <div class="wrapper">
             <h2>data sources</h2>
+            <label for="new_url">source url</label>
+            <input type="text" id="new_url" name="new_url" /><br />
+            <label for="new_list">list accessor</label>
+            <input type="text" id="new_list" name="new_list" /><br />
+            <label for="new_value">value accessor</label>
+            <input type="text" id="new_value" name="new_value" /><br />
+            <button id="add_source">add</button>
             <ul></ul>
           </div>
         </div>
@@ -86,6 +93,41 @@
         </div>
         <div id="viz"></div>
         <script>
+
+var b = browser();
+
+        var fields;
+
+function getField(data, field) {
+    if ( -1 != field.indexOf('.') ) {
+        var fields = field.split('.');
+        for ( var i in fields ) {
+            data = data[fields[i]];
+        }
+        return data;
+    }
+    return data[field];
+}
+
+$(function() {
+
+    $('#add_source').on('click', function(e) {
+        var url = $('#new_url').val(),
+            list = $('#new_list').val(),
+            value = $('#new_value').val();
+
+        var cleaner = function(data) {
+            var source = !!list ? getField(data, list) : data;
+            var cleaned = !!value ? source.map(accessor(value)) : source;
+            return cleaned;
+        };
+
+        var fetch = 'fetch/' + encodeURIComponent(url);
+
+        b.search(fetch, cleaner);
+    });
+
+});
 
         </script>
     </body>
