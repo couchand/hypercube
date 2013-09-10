@@ -34,34 +34,39 @@ class Axis
     constructor: (dim, type) ->
         me = @
         scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
-        offset = if type is 'ordinal' then ((d)-> d + scale.rangeBand()*0.5) else ((d) -> d)
         @_name = dim._name
         @_type = type
         @_dim = dim
         @_scale = scale
         @_axis = d3.svg.axis().scale(scale)
         @_brush = d3.svg.brush()
-        @_map = (d) -> offset scale dim._get d
+        @_map = (d) -> scale dim._get d
 
         @_axis.tickFormat(logFormat) if type is 'log'
         @_brush.on 'brush', ->
             dim._dim.filterRange me._brush.extent()
 
-        if type is 'ordinal'
-            @_scale.domain dim._dim.group().all().map (d) -> d.key
-        else
-            @_scale.domain [
-                dim._get(dim._dim.bottom(1)[0]),
-                dim._get(dim._dim.top(1)[0])
-            ]
+        @_scale.domain [
+            dim._get(dim._dim.bottom(1)[0]),
+            dim._get(dim._dim.top(1)[0])
+        ]
 
     range: (extent) ->
-        if @_type is 'ordinal'
-            @_scale.rangeRoundBands extent, 0.1
-        else
-            @_scale.range extent
+        @_scale.range extent
+
+class OrdinalAxis extends Axis
+    constructor: (dim) ->
+        super dim, 'ordinal'
+        scale = @_scale
+        offset = ((d)-> d + scale.rangeBand()*0.5)
+        @_map = (d) -> offset scale dim._get d
+        @_scale.domain dim._dim.group().all().map (d) -> d.key
+
+    range: (extent) ->
+        @_scale.rangeRoundBands extent, 0.1
 
 axis = (dim, type) ->
+    return new OrdinalAxis dim if type is 'ordinal'
     new Axis dim, type
 
 defaultAxis = (dim) ->
