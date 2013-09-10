@@ -87,6 +87,7 @@ defaultAxis = (dim) ->
         _map: (d) -> scale if not vals[dim._get d]? then 0 else vals[dim._get d][0].value
         _axis: d3.svg.axis().scale(scale)
         _brush: ->
+        range: (extent) -> @_scale.range extent
 
     ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
 
@@ -132,7 +133,7 @@ class Projection
 
         if not @_y?
             axy = defaultAxis ax._dim
-            axy._scale.range([@_height, 0])
+            axy.range([@_height, 0])
             axy._axis.orient('left')
             @_y = axy
 
@@ -145,11 +146,11 @@ class Projection
 
         if not @_x?
             axx = defaultAxis ax._dim
-            axx._scale.range([0, @_width])
+            axx.range([0, @_width])
             @_x = axx
 
     r: (ax) ->
-        ax._scale.range([2, 8])
+        ax.range([2, 8])
         @_r = ax
 
     fill: (ax) ->
