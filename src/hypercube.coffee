@@ -4,15 +4,18 @@ logFormat = d3.format ",.0f"
 brushSize = 30
 
 # create a new dimension
-dimension = (xf, name, accessor) ->
-    dim =
-        _name: name
-        _get: accessor
-        _dim: xf.dimension accessor
-        axis: (type) -> axis @, type
-        group: () -> group @
+class Dimension
+    constructor: (xf, @_name, @_get) ->
+        @_dim = xf.dimension @_get
 
-    dim
+    axis: (type) ->
+        axis @, type
+
+    group: ->
+        group @
+
+dimension = (xf, name, accessor) ->
+    new Dimension xf, name, accessor
 
 group = (dim) ->
     gr =
