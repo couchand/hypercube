@@ -32,6 +32,7 @@ group = (dim) ->
 
 class Axis
     constructor: (dim, type) ->
+        me = @
         scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
         offset = if type is 'ordinal' then ((d)-> d + scale.rangeBand()*0.5) else ((d) -> d)
         @_name = dim._name
@@ -44,7 +45,7 @@ class Axis
 
         @_axis.tickFormat(logFormat) if type is 'log'
         @_brush.on 'brush', ->
-            dim._dim.filterRange ax._brush.extent()
+            dim._dim.filterRange me._brush.extent()
 
         if type is 'ordinal'
             @_scale.domain dim._dim.group().all().map (d) -> d.key
