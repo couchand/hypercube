@@ -8,10 +8,12 @@ draggable = (selection) ->
 browser = () ->
     cube = hypercube([])
 
+    $viz = $ '#viz'
+
     sourceList = d3.select('#sources').select('ul')
     dimensionList = d3.select('#dimensions').select('ul')
     groupList = d3.select('#groups').select('ul')
-    plot = cube.projection('#viz', 600, 600)
+    plot = cube.projection('#viz', $viz.width(), $viz.height())
 
     $('#dimensions').droppable
         accept: '#sources li'
@@ -23,7 +25,7 @@ browser = () ->
         drop: (e, ui) ->
             group ui.draggable[0].__data__
 
-    $('#viz').droppable
+    $viz.droppable
         accept: '#dimensions li, #groups li'
         drop: (e, ui) ->
             if not ui.draggable.hasClass 'group'

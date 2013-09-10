@@ -63,14 +63,17 @@ defaultAxis = (dim) ->
 
     ax
 
-projection = (selector, w, h, m) ->
-    m ?= 50
+projection = (selector, w, h) ->
+    m = h * 0.1
     proj =
         _svg: d3.select(selector).append('svg')
-            .attr('width', w + 2*m)
-            .attr('height', h + 2*m)
+            .attr('width', w)
+            .attr('height', h)
             .append('g')
             .attr('transform', "translate(#{m},#{m})")
+
+    w -= 2*m
+    h -= 2*m
 
     proj._svg.append('g')
         .attr('class', 'x axis')
