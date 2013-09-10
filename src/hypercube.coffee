@@ -52,6 +52,11 @@ class Axis
     range: (extent) ->
         @_scale.range extent
 
+    orient: (side) ->
+        brushAxis = if side is 'left' or side is 'right' then 'y' else 'x'
+        @_brush[brushAxis](@_scale)
+        @_axis.orient side
+
 class LogAxis extends Axis
     constructor: (dim) ->
         super dim, 'log'
@@ -88,6 +93,7 @@ defaultAxis = (dim) ->
         _axis: d3.svg.axis().scale(scale)
         _brush: ->
         range: (extent) -> @_scale.range extent
+        orient: (side) -> @_axis.orient side
 
     ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
 
@@ -127,26 +133,24 @@ class Projection
 
     x: (ax) ->
         ax.range [0, @_width]
-        ax._brush
-            .x(ax._scale)
+        ax.orient('bottom')
         @_x = ax
 
         if not @_y?
             axy = defaultAxis ax._dim
             axy.range([@_height, 0])
-            axy._axis.orient('left')
+            axy.orient('left')
             @_y = axy
 
     y: (ax) ->
         ax.range [@_height, 0]
-        ax._axis.orient('left')
-        ax._brush
-            .y(ax._scale)
+        ax.orient('left')
         @_y = ax
 
         if not @_x?
             axx = defaultAxis ax._dim
             axx.range([0, @_width])
+            axx.orient('bottom')
             @_x = axx
 
     r: (ax) ->
