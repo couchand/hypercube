@@ -51,11 +51,13 @@ class Axis
 
     range: (extent) ->
         @_scale.range extent
+        @
 
     orient: (side) ->
         brushAxis = if side is 'left' or side is 'right' then 'y' else 'x'
         @_brush[brushAxis](@_scale)
         @_axis.orient side
+        @
 
 class LogAxis extends Axis
     constructor: (dim) ->
@@ -77,6 +79,7 @@ class OrdinalAxis extends Axis
 
     range: (extent) ->
         @_scale.rangeRoundBands extent, 0.1
+        @
 
 axis = (dim, type) ->
     return new OrdinalAxis dim if type is 'ordinal'
@@ -92,8 +95,8 @@ defaultAxis = (dim) ->
         _map: (d) -> scale if not vals[dim._get d]? then 0 else vals[dim._get d][0].value
         _axis: d3.svg.axis().scale(scale)
         _brush: ->
-        range: (extent) -> @_scale.range extent
-        orient: (side) -> @_axis.orient side
+        range: (extent) -> @_scale.range extent; @
+        orient: (side) -> @_axis.orient side; @
 
     ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
 
@@ -132,30 +135,27 @@ class Projection
             .attr('class', 'y brush')
 
     x: (ax) ->
-        ax.range [0, @_width]
-        ax.orient('bottom')
         @_x = ax
+            .range([0, @_width])
+            .orient('bottom')
 
         if not @_y?
-            axy = defaultAxis ax._dim
-            axy.range([@_height, 0])
-            axy.orient('left')
-            @_y = axy
+            @_y = defaultAxis(ax._dim)
+                .range([@_height, 0])
+                .orient('left')
 
     y: (ax) ->
-        ax.range [@_height, 0]
-        ax.orient('left')
         @_y = ax
+            .range([@_height, 0])
+            .orient('left')
 
         if not @_x?
-            axx = defaultAxis ax._dim
-            axx.range([0, @_width])
-            axx.orient('bottom')
-            @_x = axx
+            @_x = defaultAxis(ax._dim)
+                .range([0, @_width])
+                .orient('bottom')
 
     r: (ax) ->
-        ax.range([2, 8])
-        @_r = ax
+        @_r = ax.range([2, 8])
 
     fill: (ax) ->
         @_fill = ax
