@@ -41,7 +41,6 @@ class Axis
         @_brush = d3.svg.brush()
         @_map = (d) -> scale dim._get d
 
-        @_axis.tickFormat(logFormat) if type is 'log'
         @_brush.on 'brush', ->
             dim._dim.filterRange me._brush.extent()
 
@@ -52,6 +51,11 @@ class Axis
 
     range: (extent) ->
         @_scale.range extent
+
+class LogAxis extends Axis
+    constructor: (dim) ->
+        super dim, 'log'
+        @_axis.tickFormat logFormat
 
 class TimeAxis extends Axis
     constructor: (dim) ->
@@ -72,6 +76,7 @@ class OrdinalAxis extends Axis
 axis = (dim, type) ->
     return new OrdinalAxis dim if type is 'ordinal'
     return new TimeAxis dim if type is 'time'
+    return new LogAxis dim if type is 'log'
     new Axis dim, type
 
 defaultAxis = (dim) ->
