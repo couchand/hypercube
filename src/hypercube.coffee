@@ -4,8 +4,9 @@ logFormat = d3.format ",.0f"
 brushSize = 30
 
 # create a new dimension
-dimension = (xf, accessor) ->
+dimension = (xf, name, accessor) ->
     dim =
+        _name: name
         _get: accessor
         _dim: xf.dimension accessor
         axis: (type) -> axis @, type
@@ -15,6 +16,7 @@ dimension = (xf, accessor) ->
 
 group = (dim) ->
     gr =
+        _name: dim._name
         _get: dim._get
         _dim: dim._dim
         _group: dim._dim.group()
@@ -25,6 +27,7 @@ axis = (dim, type) ->
     scale = if type is 'time' then d3.time.scale() else d3.scale[type]()
     offset = if type is 'ordinal' then ((d)-> d + scale.rangeBand()*0.5) else ((d) -> d)
     ax =
+        _name: dim._name
         _dim: dim
         _scale: scale
         _map: (d) -> offset scale dim._get d
@@ -78,11 +81,19 @@ projection = (selector, w, h) ->
     proj._svg.append('g')
         .attr('class', 'x axis')
         .attr('transform', "translate(0,#{h})")
+        .append('text')
+        .attr('class', 'label')
+        .attr('text-anchor', 'end')
+        .attr('transform', "translate(#{w},36)")
     proj._svg.append('g')
         .attr('class', 'x brush')
         .attr('transform', "translate(0,#{h})")
     proj._svg.append('g')
         .attr('class', 'y axis')
+        .append('text')
+        .attr('class', 'label')
+        .attr('text-anchor', 'start')
+        .attr('transform', 'translate(-40,-16)')
     proj._svg.append('g')
         .attr('class', 'y brush')
 
@@ -121,6 +132,8 @@ projection = (selector, w, h) ->
         if proj._x?
             proj._svg.select('.x.axis')
                 .call(proj._x._axis)
+                .selectAll('.label')
+                .text(proj._x._name)
             proj._svg.select('.x.brush')
                 .call(proj._x._brush)
                 .selectAll('rect')
@@ -128,6 +141,8 @@ projection = (selector, w, h) ->
         if proj._y?
             proj._svg.select('.y.axis')
                 .call(proj._y._axis)
+                .selectAll('.label')
+                .text(proj._y._name)
             proj._svg.select('.y.brush')
                 .call(proj._y._brush)
                 .selectAll('rect')
@@ -159,8 +174,8 @@ hypercube = (records) ->
         _dims: []
         _projs: []
 
-    cube.dimension = (accessor) ->
-        d = dimension cube._xf, accessor
+    cube.dimension = (name, accessor) ->
+        d = dimension cube._xf, name, accessor
         cube._dims.push d
         d
 

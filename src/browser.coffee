@@ -57,7 +57,7 @@ browser = () ->
 
     dimension = (field, fn) ->
         fn = if typeof fn is 'function' then fn else accessor field
-        d = cube.dimension fn
+        d = cube.dimension field, fn
         d._name = field
         li = dimensionList.append('li')
             .attr('class', 'dimension')
