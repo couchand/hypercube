@@ -76,90 +76,91 @@ defaultAxis = (dim) ->
 
     ax
 
-projection = (selector, w, h) ->
-    m = h * 0.1
-    proj =
-        _svg: d3.select(selector).append('svg')
+class Projection
+    constructor: (selector, w, h) ->
+        m = h * 0.1
+
+        @_svg = d3.select(selector).append('svg')
             .attr('width', w)
             .attr('height', h)
             .append('g')
             .attr('transform', "translate(#{m},#{m})")
 
-    w -= 2*m
-    h -= 2*m
+        @_width = w - 2*m
+        @_height = h - 2*m
 
-    proj._svg.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', "translate(0,#{h})")
-        .append('text')
-        .attr('class', 'label')
-        .attr('text-anchor', 'end')
-        .attr('transform', "translate(#{w},36)")
-    proj._svg.append('g')
-        .attr('class', 'x brush')
-        .attr('transform', "translate(0,#{h})")
-    proj._svg.append('g')
-        .attr('class', 'y axis')
-        .append('text')
-        .attr('class', 'label')
-        .attr('text-anchor', 'start')
-        .attr('transform', 'translate(-40,-16)')
-    proj._svg.append('g')
-        .attr('class', 'y brush')
+        @_svg.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', "translate(0,#{@_height})")
+            .append('text')
+            .attr('class', 'label')
+            .attr('text-anchor', 'end')
+            .attr('transform', "translate(#{@_width},36)")
+        @_svg.append('g')
+            .attr('class', 'x brush')
+            .attr('transform', "translate(0,#{@_height})")
+        @_svg.append('g')
+            .attr('class', 'y axis')
+            .append('text')
+            .attr('class', 'label')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(-40,-16)')
+        @_svg.append('g')
+            .attr('class', 'y brush')
 
-    proj.x = (ax) ->
-        ax.range [0, w]
+    x: (ax) ->
+        ax.range [0, @_width]
         ax._brush
             .x(ax._scale)
-        proj._x = ax
+        @_x = ax
 
-        if not proj._y?
+        if not @_y?
             axy = defaultAxis ax._dim
-            axy._scale.range([h, 0])
+            axy._scale.range([@_height, 0])
             axy._axis.orient('left')
-            proj._y = axy
+            @_y = axy
 
-    proj.y = (ax) ->
-        ax.range [h, 0]
+    y: (ax) ->
+        ax.range [@_height, 0]
         ax._axis.orient('left')
         ax._brush
             .y(ax._scale)
-        proj._y = ax
+        @_y = ax
 
-        if not proj._x?
+        if not @_x?
             axx = defaultAxis ax._dim
-            axx._scale.range([0, w])
-            proj._x = axx
+            axx._scale.range([0, @_width])
+            @_x = axx
 
-    proj.r = (ax) ->
+    r: (ax) ->
         ax._scale.range([2, 8])
-        proj._r = ax
+        @_r = ax
 
-    proj.fill = (ax) ->
-        proj._fill = ax
+    fill: (ax) ->
+        @_fill = ax
 
-    proj.draw = (records) ->
-        if proj._x?
-            proj._svg.select('.x.axis')
-                .call(proj._x._axis)
+    draw: (records) ->
+        if @_x?
+            @_svg.select('.x.axis')
+                .call(@_x._axis)
                 .selectAll('.label')
-                .text(proj._x._name)
-            proj._svg.select('.x.brush')
-                .call(proj._x._brush)
+                .text(@_x._name)
+            @_svg.select('.x.brush')
+                .call(@_x._brush)
                 .selectAll('rect')
                 .attr('height', brushSize)
-        if proj._y?
-            proj._svg.select('.y.axis')
-                .call(proj._y._axis)
+        if @_y?
+            @_svg.select('.y.axis')
+                .call(@_y._axis)
                 .selectAll('.label')
-                .text(proj._y._name)
-            proj._svg.select('.y.brush')
-                .call(proj._y._brush)
+                .text(@_y._name)
+            @_svg.select('.y.brush')
+                .call(@_y._brush)
                 .selectAll('rect')
                 .attr('x', -brushSize)
                 .attr('width', brushSize)
 
-        circle = proj._svg.selectAll('.record')
+        circle = @_svg.selectAll('.record')
             .data(records)
 
         circle
@@ -170,12 +171,13 @@ projection = (selector, w, h) ->
             .exit().remove()
 
         circle
-            .attr('r', if proj._r? then proj._r._map else 3)
-            .attr('cx', if proj._x? then proj._x._map else 0)
-            .attr('cy', if proj._y? then proj._y._map else 0)
-            .attr('fill', if proj._fill? then proj._fill._map else 'black')
+            .attr('r', if @_r? then @_r._map else 3)
+            .attr('cx', if @_x? then @_x._map else 0)
+            .attr('cy', if @_y? then @_y._map else 0)
+            .attr('fill', if @_fill? then @_fill._map else 'black')
 
-    proj
+projection = (selector, w, h) ->
+    new Projection selector, w, h
 
 # create a new hypercube
 hypercube = (records) ->
