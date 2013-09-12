@@ -49,11 +49,25 @@ class Axis
             dim._get(dim._dim.top(1)[0])
         ]
 
+        @axis = (sel) ->
+            sel .call(me._axis)
+                .selectAll('.label')
+                .text(me._name)
+        @brush = (sel) ->
+            rect = sel.call(me._brush)
+                .selectAll('rect')
+            if me._side is 'left' or me._side is 'right'
+                rect.attr('x', -brushSize)
+                    .attr('width', brushSize)
+            else
+                rect.attr('height', brushSize)
+
     range: (extent) ->
         @_scale.range extent
         @
 
     orient: (side) ->
+        @_side = side
         brushAxis = if side is 'left' or side is 'right' then 'y' else 'x'
         @_brush[brushAxis](@_scale)
         @_axis.orient side
@@ -93,10 +107,10 @@ defaultAxis = (dim) ->
     ax =
         _scale: scale
         _map: (d) -> scale if not vals[dim._get d]? then 0 else vals[dim._get d][0].value
-        _axis: d3.svg.axis().scale(scale)
-        _brush: ->
+        axis: d3.svg.axis().scale(scale)
+        brush: ->
         range: (extent) -> @_scale.range extent; @
-        orient: (side) -> @_axis.orient side; @
+        orient: (side) -> @axis.orient side; @
 
     ax._scale.domain d3.extent d3.values(vals), (d) -> d[0].value
 
@@ -163,23 +177,14 @@ class Projection
     draw: (records) ->
         if @_x?
             @_svg.select('.x.axis')
-                .call(@_x._axis)
-                .selectAll('.label')
-                .text(@_x._name)
+                .call(@_x.axis)
             @_svg.select('.x.brush')
-                .call(@_x._brush)
-                .selectAll('rect')
-                .attr('height', brushSize)
+                .call(@_x.brush)
         if @_y?
             @_svg.select('.y.axis')
-                .call(@_y._axis)
-                .selectAll('.label')
-                .text(@_y._name)
+                .call(@_y.axis)
             @_svg.select('.y.brush')
-                .call(@_y._brush)
-                .selectAll('rect')
-                .attr('x', -brushSize)
-                .attr('width', brushSize)
+                .call(@_y.brush)
 
         circle = @_svg.selectAll('.record')
             .data(records)
